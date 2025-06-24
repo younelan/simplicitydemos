@@ -19,17 +19,22 @@ $log_file_name = $_GET["log_file_name"] ?? "";
 $log_folder = $config["paths"]["log"];
 $log_files = [];
 foreach (scandir($log_folder) as $file) {
-    if (is_file("$log_folder/$file") && pathinfo($file, PATHINFO_EXTENSION) === 'txt') {
-        $log_files[pathinfo($file, PATHINFO_FILENAME)] = $file;
+    if (is_file("$log_folder/$file") && pathinfo($file, PATHINFO_EXTENSION) === 'log') {
+        $log_files[pathinfo($file, PATHINFO_FILENAME)] = $file; // Use filename without extension as key
     }
 }
 
+$config_files = array_keys($log_files);
+$default_file = $config["defaultfile"];
+
 if (isset($log_files[$log_file_name])) {
     $log_file = $log_files[$log_file_name];
-} elseif (!empty($log_files)) {
-    $log_file = reset($log_files); // Use the first file in the array
+} elseif (empty($log_file_name)) {
+    $log_file = $log_files[pathinfo($default_file, PATHINFO_FILENAME)] ?? $default_file; // Use default file if no file is specified
+} elseif (!array_key_exists($log_file_name, $log_files)) {
+    die("Error: Specified log file '$log_file_name' is not valid."); // Show error for invalid file names
 } else {
-    $log_file = $config["file"]; // Default filename from log_config
+    $log_file = $log_files[$log_file_name];
 }
 
 print("<a href=$PHP_SELF>Reset Filter</a>");
@@ -61,9 +66,9 @@ $navigation .= "  </select>
 foreach($log_files as $field=>$value)
 {
         if($log_file_name==$field) {
-                 $navigation .= "   <option value='$value' selected>$field</option>\n";
+                 $navigation .= "   <option value='$field' selected>$field</option>\n";
 		} else {
-                $navigation .= "   <option value='$value' >$field</option>\n";
+                $navigation .= "   <option value='$field' >$field</option>\n";
         }
 
 }
@@ -106,3 +111,4 @@ print("<p>\n");
 $mylog->showCustomGraphs();
 print("<p>\n");
 $mylog->printLog();
+
