@@ -103,12 +103,12 @@ if(strlen($filter_value)>0)	$mylog->setFilter($filter_name,$filter_type,$filter_
 $mylog->setColumns(  $config["columns"] );
 $mylog->setCustomGraphs( $config["customgraphs"] );
 
-$mylog->loadRules("engines.txt");
+$mylog->loadRules("engines.txt",'engines');
 $mylog->loadRules("families.txt",'families');
 $mylog->parseLog();
-$mylog->showGraphs();
+$mylog->showAllGraphs();
 print("<p>\n");
-$mylog->showCustomGraphs();
+//$mylog->showCustomGraphs();
 print("<p>\n");
 $mylog->printLog();
 
