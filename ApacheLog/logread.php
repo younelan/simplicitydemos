@@ -188,8 +188,20 @@ if($show_navigation)
 $output .= showAllGraphs($results,$framework);
 
 $output .= "</div>\n";
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<?php
 print $output;
 //$mylog->showCustomGraphs();
 //print("<p>\n");
 //$mylog->printLog();
+?>
+<body>
+
+</body>
+</html>
 
