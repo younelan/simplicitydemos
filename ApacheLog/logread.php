@@ -82,21 +82,21 @@ $default_file = $config["defaultfile"];
 if (isset($log_files[$log_file_name])) {
     $log_file = $log_files[$log_file_name];
 } elseif (empty($log_file_name)) {
-    $log_file = $log_files[pathinfo($default_file, PATHINFO_FILENAME)] ?? $default_file; // Use default file if no file is specified
+    $log_file = $default_file; // Use default file if no file is specified
 } elseif (!array_key_exists($log_file_name, $log_files)) {
     die("Error: Specified log file '$log_file_name' is not valid."); // Show error for invalid file names
 } else {
     $log_file = $log_files[$log_file_name];
 }
 
-$output = "<a href=$PHP_SELF>Reset Filter</a>";
+$navigation = "<a href=$PHP_SELF>Reset Filter</a>";
 
-$output .= "
+$navigation .= "
 <p>Filter:
 <form method=get action=\"" . $_SERVER["PHP_SELF"] . "\">
 ";
 
-$navigation = "<select name=\"filter_name\" value=\".  htmlentities($filter_name) . \"/>";
+$navigation .= "<select name=\"filter_name\" value=\".  htmlentities($filter_name) . \"/>";
 foreach($config["columns"] as $field=>$value)
 {
 	if(is_array($value))
@@ -144,10 +144,21 @@ $navigation .= "  </select>
 //print($navigation);
 
 $enginestotal=0; $regulartotal=0;
-$fullpath = $config["paths"]["log"] . "/" . $log_file;
+$fullpaths = [];
+if (!is_array($log_file)) {
+    $log_file = [$log_file]; // Ensure log_file is an array
+}
+$log_folder = $config["paths"]["log"];
+foreach ($log_file as $file) {
+    if (is_file("$log_folder/$file")) {
+        $fullpaths[] = "$log_folder/$file";
+    } else {
+        print("Error: Log file '$log_folder/$file' does not exist in the log folder.");
+    }
+}
 //print $fullpath . "<br>";
 //$config["file"] = $fullpath;
-$config_object->set("file", $fullpath);
+$config_object->set("file", $fullpaths);
 
 $mylog = $framework->get_plugin("loghelper");
 $mylog->init();
@@ -157,16 +168,18 @@ if (!$mylog) {
 
 if(strlen($filter_value)>0)	$mylog->setFilter($filter_name,$filter_type,$filter_value);
 
+$output .= "<div>";
+$show_navigation = $config["show_navigation"] ?? false;
+
+
 $mylog->setColumns(  $config["columns"] );
 $mylog->setCustomGraphs( $config["customgraphs"] );
-
 $mylog->loadRules("engines.txt",'engines');
 $mylog->loadRules("families.txt",'families');
 $mylog->parseLog();
-$output .= "<div>";
 $results = $mylog->getResults();
 
-if($show_navigation??true)
+if($show_navigation)
 {
     $output .= "<p>Navigation: " . $navigation . "</p>";
 }

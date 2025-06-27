@@ -1,6 +1,7 @@
 <?php
 $basedir = dirname(__FILE__);
 $config = [
+    "show_navigation" => false,
     "trim-lead-www" => true,
     "paths"=> [
         "basedir" => $basedir,
@@ -16,8 +17,7 @@ $config = [
         ["referer", "Referer"],
         ["agent", "User Agent"]
     ],
-    "defraultfile" => ["access.log","ssl_access.log","ssl_access.log.1", "access.log.1"],
-    "defaultfile" => "access.log",
+    "defaultfile" => ["access.log","ssl_access.log","ssl_access_1.log", "access_1.log"],
     "logfolder" => "$basedir/logs",
     "customgraphs" => [
          "path" => ["field" => "path", "label" => "Path", "type" => "vbar"],
