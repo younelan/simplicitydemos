@@ -1,6 +1,7 @@
 <?php
 $basedir = dirname(__FILE__);
 $config = [
+    "trim-lead-www" => true,
     "paths"=> [
         "basedir" => $basedir,
         "log" => "$basedir/logs",
@@ -15,18 +16,43 @@ $config = [
         ["referer", "Referer"],
         ["agent", "User Agent"]
     ],
+    "defraultfile" => ["access.log","ssl_access.log","ssl_access.log.1", "access.log.1"],
     "defaultfile" => "access.log",
     "logfolder" => "$basedir/logs",
     "customgraphs" => [
-         "path" => ["field" => "path", "label" => "Path"],
-         "agent" => ["field" => "agent", "label" => "User Agent"],
-         "hostname" => ["field" => "hostname", "label" => "Hostname"],
+         "path" => ["field" => "path", "label" => "Path", "type" => "vbar"],
          "referer" => ["field" => "referer", "label" => "Referer"],
-         "vhost"=> ["field" => "vhost", "label" => "Virtual Host"],
+         "vhost"=> ["field" => "host", "label" => "Virtual Host"],
+         "port"=> ["field" => "port", "label" => "Port"],
          "verb" => ["field" => "verb", "label" => "Method"],
+        "protocol" => ["field" => "protocol", "label" => "Protocol"],
+        "status_code"=> ["field" => "status_code", "label" => "Status Code"],
          "ip" => ["field" => "ip", "label" => "IP Address"],
          "day"=> ["field" => "day", "label" => "Date"],
-         "hour"=> ["field" => "hour", "label" => "Hour"]
+         "hour"=> ["field" => "hour", "label" => "Hour", "type" => "vbar"],
+         "statperhour" => [
+            "x" => 'hour',
+            "y" => 'status_code', 
+            "type" => "line", 
+            "label" => "Busiest Hours",
+            "xlabel" => "Hour", "ylabel" => "Visits",
+            "key-synonyms" => [
+                "404" => "Not Found",
+                "200" => "OK",
+                "500" => "Server Error",
+                "403" => "Forbidden",
+                "301" => "Moved Permanently",
+                "206" => "Partial Content"
+            ]
+
+        ],
+         "daily" => [
+            "x" => 'day',
+            "y" => 'status_code', 
+            "type" => "line", 
+            "label" => "Daily Visits",
+            "xlabel" => "Day", "ylabel" => "Visits"
+        ],
     ]
 ];
 

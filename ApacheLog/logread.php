@@ -6,10 +6,62 @@ $base_dir=dirname(__file__);
 
 require_once (dirname(__DIR__) . "/vendor/autoload.php");
 
-use Opensitez\Simplicity\LogHelper;
-
 require_once(__DIR__ . "/log_config.php");
 
+function showAllGraphs($results,$framework)
+{
+    $loghelper = $framework->get_plugin("loghelper");
+    $output = $loghelper->getCss();
+
+    $output .= "<div class='graphs-container'>";
+    $pieChart = $framework->get_plugin('piechartblock');
+    $barChart = $framework->get_plugin('barchartblock');
+    $vbarChart = $framework->get_plugin('vbarchartblock');
+    $lineChart = $framework->get_plugin('linechartblock');
+    
+        // Custom graphs - check type, default to pie
+        foreach ($results ?? [] as $key => $data) {
+            $title = $data['label'] ?? "Custom Graph";
+            $type = $data['type'] ?? 'pie';
+            $xlabel = $data['xlabel'] ?? '';
+            $ylabel = $data['ylabel'] ?? '';
+
+            //$data =  $this->results[$key] ?? [];
+            // $data['title'] = $title;
+            $data['graphId'] = "customgraph_$key";
+            $data['limit'] = 10;
+            switch($type) {
+                case 'pie':
+                    $output .= $pieChart->render($data);
+                    break;
+                case 'bar':
+                    $output .= $barChart->render($data);
+                    break;
+                case 'vbar':
+                    $output .= $vbarChart->render($data);
+                    break;
+                case 'line':
+                    $data = $results[$key] ?? [];
+                    $data['xlabel'] = $xlabel;
+                    $data['ylabel'] = $ylabel;
+                    $output .= $lineChart->render($data);
+                    break;
+                default:
+                case 'pie':
+                    $output .= $pieChart->render($data);
+                    break;
+
+            }   
+           
+
+        }
+
+    $output .= "</div>";
+    return $output;
+    }
+
+
+require_once(__DIR__ . "/init.php");
 //see if we want to filter out something
 $filter_name = $_GET["filter_name"] ?? "host";
 $filter_type = $_GET["filter_type"] ?? "like";
@@ -37,13 +89,13 @@ if (isset($log_files[$log_file_name])) {
     $log_file = $log_files[$log_file_name];
 }
 
-print("<a href=$PHP_SELF>Reset Filter</a>");
+$output = "<a href=$PHP_SELF>Reset Filter</a>";
 
-?>
+$output .= "
 <p>Filter:
-<form method=get action="<?php echo $_SERVER["PHP_SELF"] ?>">  
+<form method=get action=\"" . $_SERVER["PHP_SELF"] . "\">
+";
 
-<?php 
 $navigation = "<select name=\"filter_name\" value=\".  htmlentities($filter_name) . \"/>";
 foreach($config["columns"] as $field=>$value)
 {
@@ -89,14 +141,19 @@ $navigation .= "  </select>
 </p>
 <p><hr /></p>
 ";
-print($navigation);
-
+//print($navigation);
 
 $enginestotal=0; $regulartotal=0;
 $fullpath = $config["paths"]["log"] . "/" . $log_file;
 //print $fullpath . "<br>";
-$config["file"] = $fullpath;
-$mylog = new LogHelper($config);
+//$config["file"] = $fullpath;
+$config_object->set("file", $fullpath);
+
+$mylog = $framework->get_plugin("loghelper");
+$mylog->init();
+if (!$mylog) {
+    die("Error: Log reader plugin not found.");
+}
 
 if(strlen($filter_value)>0)	$mylog->setFilter($filter_name,$filter_type,$filter_value);
 
@@ -106,9 +163,20 @@ $mylog->setCustomGraphs( $config["customgraphs"] );
 $mylog->loadRules("engines.txt",'engines');
 $mylog->loadRules("families.txt",'families');
 $mylog->parseLog();
-$mylog->showAllGraphs();
-print("<p>\n");
+$output .= "<div>";
+$results = $mylog->getResults();
+
+if($show_navigation??true)
+{
+    $output .= "<p>Navigation: " . $navigation . "</p>";
+}
+
+
+$output .= showAllGraphs($results,$framework);
+
+$output .= "</div>\n";
+print $output;
 //$mylog->showCustomGraphs();
-print("<p>\n");
-$mylog->printLog();
+//print("<p>\n");
+//$mylog->printLog();
 
