@@ -11,7 +11,7 @@ $output = "";
 function showAllGraphs($results,$framework)
 {
     $loghelper = $framework->get_plugin("loghelper");
-    $output = $loghelper->getCss();
+    $output = $loghelper->get("css");
 
     $output .= "<div class='graphs-container'>";
     $pieChart = $framework->get_plugin('piechartblock');
@@ -19,15 +19,11 @@ function showAllGraphs($results,$framework)
     $vbarChart = $framework->get_plugin('vbarchartblock');
     $lineChart = $framework->get_plugin('linechartblock');
     
-        // Custom graphs - check type, default to pie
         foreach ($results ?? [] as $key => $data) {
             $title = $data['label'] ?? "Custom Graph";
             $type = $data['type'] ?? 'pie';
             $xlabel = $data['xlabel'] ?? '';
             $ylabel = $data['ylabel'] ?? '';
-
-            //$data =  $this->results[$key] ?? [];
-            // $data['title'] = $title;
             $data['graphId'] = "customgraph_$key";
             $data['limit'] = 10;
             switch($type) {
@@ -177,7 +173,7 @@ $mylog->setCustomGraphs( $config["customgraphs"] );
 $mylog->loadRules("engines.txt",'engines');
 $mylog->loadRules("families.txt",'families');
 $mylog->parseLog();
-$results = $mylog->getResults();
+$results = $mylog->get("results");
 
 if($show_navigation)
 {
@@ -194,13 +190,21 @@ $output .= "</div>\n";
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
-<?php
-print $output;
-//$mylog->showCustomGraphs();
-//print("<p>\n");
-//$mylog->printLog();
-?>
 <body>
+<?php
+$show_logs = $config["show_logs"] ?? false;
+print $output;
+if($show_logs) {
+
+    $logView = $framework->get_plugin('logviewblock');
+    echo $logView->render([
+        'log_entries' => $mylog->get("filtered_log"),
+        'columns' => $mylog->get("columns"),
+        'filter_count' => $mylog->get("filter_count") ?? 0,
+        'color_cycle' => $mylog->get('colorCycle') ?? $mylog->get("defaultcolors")
+    ]);
+}
+?>
 
 </body>
 </html>

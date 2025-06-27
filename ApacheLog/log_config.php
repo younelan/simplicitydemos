@@ -2,6 +2,7 @@
 $basedir = dirname(__FILE__);
 $config = [
     "show_navigation" => false,
+    "show_logs" => false,
     "trim-lead-www" => true,
     "paths"=> [
         "basedir" => $basedir,
