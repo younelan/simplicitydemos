@@ -17,7 +17,7 @@ $config = [
         ["referer", "Referer"],
         ["agent", "User Agent"]
     ],
-    "defaultfile" => ["access.log","ssl_access.log","ssl_access_1.log", "access_1.log"],
+    "defaultfile" => ["access.log","ssl_access.log","ssl_access.log.1", "access.log.1"],
     "logfolder" => "$basedir/logs",
     "customgraphs" => [
          "path" => ["field" => "path", "label" => "Path", "type" => "vbar"],
