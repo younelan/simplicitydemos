@@ -10,14 +10,14 @@ require_once(__DIR__ . "/log_config.php");
 $output = "";
 function showAllGraphs($results,$framework)
 {
-    $loghelper = $framework->get_plugin("loghelper");
+    $loghelper = $framework->get_component("loghelper");
     $output = $loghelper->get("css");
 
     $output .= "<div class='graphs-container'>";
-    $pieChart = $framework->get_plugin('piechartblock');
-    $barChart = $framework->get_plugin('barchartblock');
-    $vbarChart = $framework->get_plugin('vbarchartblock');
-    $lineChart = $framework->get_plugin('linechartblock');
+    $pieChart = $framework->get_component('piechartblock');
+    $barChart = $framework->get_component('barchartblock');
+    $vbarChart = $framework->get_component('vbarchartblock');
+    $lineChart = $framework->get_component('linechartblock');
     
         foreach ($results ?? [] as $key => $data) {
             $title = $data['label'] ?? "Custom Graph";
@@ -156,7 +156,7 @@ foreach ($log_file as $file) {
 //$config["file"] = $fullpath;
 $config_object->set("file", $fullpaths);
 
-$mylog = $framework->get_plugin("loghelper");
+$mylog = $framework->get_component("loghelper");
 $mylog->init();
 if (!$mylog) {
     die("Error: Log reader plugin not found.");
@@ -196,7 +196,7 @@ $show_logs = $config["show_logs"] ?? false;
 print $output;
 if($show_logs) {
 
-    $logView = $framework->get_plugin('logviewblock');
+    $logView = $framework->get_component('logviewblock');
     echo $logView->render([
         'log_entries' => $mylog->get("filtered_log"),
         'columns' => $mylog->get("columns"),
